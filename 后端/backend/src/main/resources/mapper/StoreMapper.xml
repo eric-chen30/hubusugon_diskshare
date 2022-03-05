@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hubusugon.sugonnetdisk.part3.mapper.StoreMapper">
+    <resultMap id="storeResult" type="com.hubusugon.sugonnetdisk.part3.bean.Store">
+        <id property="open_id" column="open_id"/>
+        <result property="folder" column="folder"/>
+        <result property="file" column="file"/>
+        <result property="use_capacity" column="use_capacity"/>
+        <result property="current_num" column="current_size"/>
+        <result property="document_num" column="document_num"/>
+        <result property="photo_num" column="photo_num"/>
+        <result property="movie_num" column="movie_num"/>
+        <result property="void_num" column="void_num"/>
+        <result property="other_num" column="other_num"/>
+    </resultMap>
+    <select id="selectStore" resultMap="storeResult">
+        select distinct open_id,
+		(select COUNT(file_folder.file_folder_id)
+		from user_ruoyi,file_folder
+		where user_ruoyi.file_store_id=file_folder.file_store_id
+		and open_id=#{openid}
+		GROUP BY open_id)AS folder,
+		COUNT(my_file.my_file_id) AS file,
+        (max_size-current_size) AS use_capacity,
+		current_size,
+        COUNT(type='文本类型' OR NULL) AS document_num,
+		COUNT(type='图像类型' OR NULL) AS photo_num,
+        COUNT(type='视频类型' OR NULL) AS movie_num,
+		COUNT(type='音乐类型' OR NULL) AS void_num,
+        COUNT(type='其他类型' OR NULL) AS other_num
+        from user_ruoyi,file_folder,my_file,file_store
+        where user_ruoyi.file_store_id=file_folder.file_store_id
+				and user_ruoyi.file_store_id=my_file.file_store_id
+				and user_ruoyi.file_store_id=file_store.file_store_id
+				and user_ruoyi.open_id=#{openid}
+        GROUP BY open_id , max_size-current_size , current_size , file_folder.file_folder_id
+    </select>
+</mapper>

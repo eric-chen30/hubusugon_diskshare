@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hubusugon.sugonnetdisk.part3.mapper.SharedFilesMapper">
+    <resultMap id="filesResult" type="com.hubusugon.sugonnetdisk.part3.bean.SharedFiles">
+        <id property="my_file_id" column="my_file_id"/>
+        <result property="parent_folder_id" column="parent_folder_id"/>
+        <result property="file_store_id" column="file_store_id"/>
+        <result property="user_name" column="user_name"/>
+        <result property="my_file_name" column="my_file_name"/>
+        <result property="my_file_path" column="my_file_path"/>
+        <result property="download_time" column="download_time"/>
+        <result property="upload_time" column="upload_time"/>
+        <result property="size" column="size"/>
+        <result property="type" column="type"/>
+        <result property="postfix" column="postfix"/>
+    </resultMap>
+    <select id="selectAllFiles" resultMap="filesResult">
+        select user_name,my_file_id,my_file_name,my_file.file_store_id,my_file_path,download_time,upload_time,parent_folder_id,size,type,postfix
+        from user_ruoyi,my_file where user_ruoyi.file_store_id=my_file.file_store_id and whether_share='true'
+    </select>
+    <select id="selectFilesByFile_name" resultMap="filesResult">
+        select user_name,my_file_id,my_file_name,my_file.file_store_id,my_file_path,download_time,upload_time,parent_folder_id,size,type,postfix
+        from user_ruoyi,my_file where user_ruoyi.file_store_id=my_file.file_store_id and my_file_name like CONCAT('%',#{file_name},'%') and whether_share='true'
+    </select>
+    <update id="addUserNumber" parameterType="java.util.Map">
+        update file_store set max_size =#{number,jdbcType=INTEGER} from user_ruoyi where user_ruoyi.user_id=file_store.user_id and open_id=#{openid,jdbcType=VARCHAR}
+    </update>
+    <update id="reduceUserNumber" parameterType="java.util.Map">
+        update file_store set max_size =#{number,jdbcType=INTEGER} from user_ruoyi where user_ruoyi.user_id=file_store.user_id and open_id=#{openid,jdbcType=VARCHAR}
+    </update>
+</mapper>
